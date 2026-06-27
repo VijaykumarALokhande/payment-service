@@ -38,6 +38,10 @@ public class SimulatorServiceImpl implements SimulatorService {
 
         System.out.println("Received in simulator for paymentId:"+pymtDetails.getId() );
 
+        if(true){
+            throw new RuntimeException("Testing Retry");
+        }
+
         //check for idempotency -> this makes sense only from learning perspective.
         if(processedRepository.existsById(eventId)){
             System.out.println("Duplicate Event Received : " + eventId);
