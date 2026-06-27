@@ -1,6 +1,7 @@
 package com.mini.pymtSystem.scheduler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mini.pymtSystem.dto.PaymentEvent;
 import com.mini.pymtSystem.entity.OutboxEvent;
 import com.mini.pymtSystem.entity.PymtDetails;
 import com.mini.pymtSystem.kafka.SimulatorProducer;
@@ -42,7 +43,13 @@ public class OutboxScheduler {
                 if(route!=null){
                     //push to simuilator queue and mark outbox as sent.
                     System.out.println("Route found in Redis");
-                    simulatorProducer.publish(pymtDetails);
+
+                    //before pushing we need to ensure we check idempotency in simulatorConsumer
+                    PaymentEvent paymentEvent = new PaymentEvent();
+                    paymentEvent.setPymtDetails(pymtDetails);
+                    paymentEvent.setEventId(event.getId() );
+
+                    simulatorProducer.publish(paymentEvent);
                     outboxService.markAsSent(event);
                     System.out.println("Outbox Event "
                                     + event.getId()
